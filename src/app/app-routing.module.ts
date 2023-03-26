@@ -3,7 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { map } from 'rxjs/operators';
-import { AngularFireAuthGuard, redirectUnauthorizedTo } from '@angular/fire/auth-guard'
+import { AngularFireAuthGuard, customClaims, redirectUnauthorizedTo } from '@angular/fire/auth-guard'
+import { UsersComponent } from './users/users.component';
+import { pipe } from 'rxjs';
 
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo([''])
 const redirectLoggedInToProfile = () =>
@@ -13,6 +15,12 @@ const onlyAllowSelf = next =>
   map(
     user => (!!user && next.params.id === (user as any).uid || [''])
   );
+
+const adminOnly = () => pipe(
+  customClaims,
+  map(claims => claims['admin'] === true || [''])
+);
+
 const routes: Routes = [
   {
     path: '',
@@ -25,6 +33,12 @@ const routes: Routes = [
     component: ProfileComponent,
     canActivate: [AngularFireAuthGuard],
     data: { authGuardPipe: onlyAllowSelf }
+  },
+  {
+    path: 'users',
+    component: UsersComponent,
+    canActivate: [AngularFireAuthGuard],
+    data: { authGuardPipe: adminOnly }
   }
 ];
 
