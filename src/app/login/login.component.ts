@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
         resp = await this.afAuth.auth.signInWithEmailAndPassword(email, password);
       }
       const uid = resp.user.uid;
-      this.router.navigate([`/profile/${uid}`]);
+      this.auth.routeOnLogin();
     } catch (error) {
       console.log(error);
       this.error = error.message;

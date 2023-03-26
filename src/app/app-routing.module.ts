@@ -21,12 +21,25 @@ const adminOnly = () => pipe(
   map(claims => claims['admin'] === true || [''])
 );
 
+const redirectLoggedInToProfileOrUsers = () =>
+  pipe(
+    customClaims,
+    map(claims => {
+      if (claims.length === 0) {
+        return true;
+      } else if (claims.admin) {
+        return ['users'];
+      }
+      return ['profile', claims.user_id]
+    })
+  )
+
 const routes: Routes = [
   {
     path: '',
     component: LoginComponent,
     canActivate: [AngularFireAuthGuard],
-    data: { authGuardPipe: redirectLoggedInToProfile }
+    data: { authGuardPipe: redirectLoggedInToProfileOrUsers }
   },
   {
     path: 'profile/:id',
